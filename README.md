@@ -1,4 +1,11 @@
-# SOAP DM
+# SOAP DM MEDIC
+
+> Fork of the standard SOAP DM Plugin but for Medic Crossbow training only.
+
+All changes are in the "soap_dm_medic.sp" file in `addons/sourcemod/scripting`. New additions are placed at the bottom, other additions which had to be integrated into the original code are commented as such.
+
+
+# SOAP DM 
 
 > Team DeathMatch gameplay plugins for Team Fortress 2
 
