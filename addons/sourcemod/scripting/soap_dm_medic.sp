@@ -2352,8 +2352,8 @@ public Action Event_player_heal(Handle event, const char[] name, bool dontBroadc
 				weapon2 = GetPlayerWeaponSlot(attacker, 1);
 				if (weapon2 > MaxClients) {
 					weaponID2 = GetEntProp(weapon2, Prop_Send, "m_iItemDefinitionIndex");
-	            	}
-	       			 }
+	            		}
+	       		}
 	    	}
 	    
 		SDKHooks_TakeDamage(client, 0, 0, 450.00);
