@@ -4,6 +4,7 @@ TODO:
 
 	(*) Custom killfeed input for friendly fire kills?
 	(*) Adding kills to the scoreboard on friendly fire kills?
+	(*) Fix weird bug where you can switch to Pyro?
 
 **/
 #pragma semicolon 1 // Force strict semicolon mode.
@@ -11,7 +12,6 @@ TODO:
 
 // ====[ INCLUDES ]====================================================
 #include <sourcemod>
-#include <sdktools>
 #include <regex>
 #include <tf2_stocks>
 #include <sdkhooks>
@@ -2321,16 +2321,16 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
  *
  * The Healing event allows us an easy way to add friendly fire. :)
  *-------------------------------------------------------------------------- */
- public Action Event_player_heal(Handle event, const char[] name, bool dontBroadcast)
- {
- 	int client = GetClientOfUserId(GetEventInt(event, "patient")); 
- 	int attacker = GetClientOfUserId(GetEventInt(event, "healer")); // This is just the healer but setting it to attacker to match the variable.s
- 	int totHealed = GetEventInt(event, "amount");
+public Action Event_player_heal(Handle event, const char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(GetEventInt(event, "patient")); 
+	int attacker = GetClientOfUserId(GetEventInt(event, "healer")); // This is just the healer but setting it to attacker to match the variable.s
+	int totHealed = GetEventInt(event, "amount");
  	
  	
  	// If the amount healed is above 6 (6 is the max self heal ramp up for Medic) then kill the player.
- 	if (totHealed > 6)
- 	{	
+	if (totHealed > 6)
+	{	
  		// Hi sorry i copied the ammo restore code from earlier in the code to make it compatible for friendly fire :)
  		
 		int weapon1 = -1;
@@ -2341,35 +2341,35 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 			
 			
 		if (IsValidClient(attacker) && attacker != 0)
-	    {
+	    	{
 			if (IsValidEntity(GetPlayerWeaponSlot(attacker, 0))) {
 				weapon1 = GetPlayerWeaponSlot(attacker, 0);
 				if (weapon1 > MaxClients) {
 					weaponID1 = GetEntProp(weapon1, Prop_Send, "m_iItemDefinitionIndex");
-	            }
-	        }
+	            		}
+	        	}
 			if (IsValidEntity(GetPlayerWeaponSlot(attacker, 1))) {
 				weapon2 = GetPlayerWeaponSlot(attacker, 1);
 				if (weapon2 > MaxClients) {
 					weaponID2 = GetEntProp(weapon2, Prop_Send, "m_iItemDefinitionIndex");
-	            }
-	        }
-	    }
+	            	}
+	       			 }
+	    	}
 	    
 		SDKHooks_TakeDamage(client, 0, 0, 450.00);
 	
 		if (IsValidClient(attacker) && client != attacker) {
 			if (g_bShowHP)
-	        {
+	        	{
 				if (IsPlayerAlive(attacker))
-	            {
+	            		{
 					MC_PrintToChat(client, SOAP_TAG ... "%t", "Health Remaining", GetClientHealth(attacker));
-	            }
+	            		}
 				else
-	            {
+	            		{
 					MC_PrintToChat(client, SOAP_TAG ... "%t", "Attacker is dead");
-	            }
-	        }
+	            		}
+	        	}
 	
 			int targetHealth = 0;
 	
@@ -2379,8 +2379,8 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					targetHealth = g_iMaxHealth[attacker];
 				} else {
 					targetHealth = GetClientHealth(attacker) + RoundFloat(g_fKillHealRatio * g_iMaxHealth[attacker]);
-	            }
-	        }
+	            		}
+	        	}
 	
 	        // Heals a flat value, regardless of class.
 			if (g_iKillHealStatic > 0) {
@@ -2388,16 +2388,17 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 					targetHealth = g_iMaxHealth[attacker];
 				} else {
 					targetHealth =  GetClientHealth(attacker) + g_iKillHealStatic;
-	            }
-	        }
+	            		}
+	        	}
 	
 			if (targetHealth > GetClientHealth(attacker)) {
 				SetEntProp(attacker, Prop_Data, "m_iHealth", targetHealth);
-	        }
+	        	}
 	
 	        // Gives full ammo for primary and secondary weapon to the player who got the kill.
 	        // This is not compatable with unlockreplacer, because as far as i can tell, it doesn't even work anymore.
-			if (g_bKillAmmo) {
+			if (g_bKillAmmo) 
+			{
 	            // if you somehow get it to work, it's still not compatible, sorry!
 				if (FindConVar("sm_unlock_version") == null) {
 					
@@ -2405,26 +2406,26 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3
 	                // make sure the weapon is actually a real one!
 					if (weapon1 == -1 || weaponID1 == -1) {
 						return Plugin_Continue;
-	                }
+	                		}
 					else if (g_iMaxClips1[attacker] > 0) {
 						SetEntProp(GetPlayerWeaponSlot(attacker, 0), Prop_Send, "m_iClip1", g_iMaxClips1[attacker]);
 	
-	                }
+	                		}
 	                // Check the secondary weapon, and set its ammo.
 	                // make sure the weapon is actually a real one!
 					if (weapon2 == -1 || weaponID2 == -1) {
 						return Plugin_Continue;
-	                }
+	                		}
 	
 					else if (g_iMaxClips2[attacker] > 0) {
 						SetEntProp(GetPlayerWeaponSlot(attacker, 1), Prop_Send, "m_iClip1", g_iMaxClips2[attacker]);
-	                }
-	            }
-	        }
-	 	}
-	 }
+					}
+				}
+			 }
+		}
+	}
 	return Plugin_Continue; 
- }
+}
  
 
 /* OnClientPutInServer()
